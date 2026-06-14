@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – My Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-orders.css"/>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>My Orders</h1>
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-ongoing" onclick="switchTab('ongoing')">Ongoing</button>
+    <button class="tab-btn"        id="tab-history" onclick="switchTab('history')">History</button>
+  </div>
+</div>
+
+<!-- Search -->
+<div style="padding:10px 16px;background:#fff;border-bottom:1px solid #f0f0f0">
+  <div style="display:flex;align-items:center;background:#F2F2F2;border-radius:20px;padding:9px 14px;gap:8px">
+    <span style="color:#9E9E9E;font-size:14px">🔍</span>
+    <input type="text" placeholder="Search orders, cities, travellers..." id="orderSearch" oninput="filterOrders()"
+      style="flex:1;background:none;border:none;outline:none;font-family:'Poppins',sans-serif;font-size:13px;color:#1a1a1a"/>
+  </div>
+</div>
+
+<!-- Scroll body -->
+<div class="scroll-body">
+  <div id="panel-ongoing">
+    <div class="empty-state" id="emptyState">
+      <svg class="empty-icon" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 52L65 38L110 52V95C110 97.2 108.2 99 106 99H24C21.8 99 20 97.2 20 95V52Z" stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M20 52L65 66L110 52" stroke="#1a1a1a" stroke-width="4"/>
+        <path d="M20 52L42 38V24L20 38V52Z" stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M110 52L88 38V24L110 38V52Z" stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M42 24L65 31L88 24" stroke="#1a1a1a" stroke-width="4"/>
+        <circle cx="90" cy="92" r="22" fill="white" stroke="#1a1a1a" stroke-width="4"/>
+        <text x="90" y="100" text-anchor="middle" font-size="24" font-family="Poppins,sans-serif" font-weight="700" fill="#1a1a1a">?</text>
+      </svg>
+      <div class="empty-title">There is no order!</div>
+      <div class="empty-sub">Sepertinya kamu belum pesan<br>apa-apa.</div>
+    </div>
+    <div class="orders-list hidden" id="ongoing-list"></div>
+  </div>
+  <div id="panel-history" class="hidden">
+    <div class="orders-list" id="history-list"></div>
+  </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="bnav-btn active" onclick="location.href='jastip-orders.html'"><span class="icon">🛒</span><span class="label">Orders</span></button>
+  <button class="bnav-btn" onclick="location.href='jastip-home.html'"><span class="icon">🏠</span><span class="label">Home</span></button>
+  <button class="bnav-btn" onclick="location.href='jastip-chat.html'"><span class="icon">💬</span><span class="label">Chat</span></button>
+</div>
+
+<!-- ══════════════════════════════════
+     DETAIL OVERLAY
+══════════════════════════════════ -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="det-header">
+    <button class="det-back" onclick="closeDetail()">‹</button>
+    <div class="det-title">Order Details</div>
+  </div>
+
+  <div class="det-scroll" id="detScroll">
+    <div class="det-id" id="det-id"></div>
+    <div class="det-date" id="det-date"></div>
+
+    <!-- Stat blocks -->
+    <div class="det-blocks">
+      <div class="det-block">
+        <div class="det-block-label">Total Items</div>
+        <div class="det-block-value" id="det-items-count"></div>
+      </div>
+      <div class="det-block">
+        <div class="det-block-label">Total Price</div>
+        <div class="det-block-value price" id="det-price"></div>
+      </div>
+    </div>
+
+    <!-- Stepper -->
+    <div class="detail-stepper-wrap" id="det-stepper-wrap"></div>
+
+    <!-- Inner tabs full-width -->
+    <div class="det-tabs">
+      <button class="det-tab active" id="dtab-items"   onclick="switchDetTab('items')">Items</button>
+      <button class="det-tab"        id="dtab-proof"   onclick="switchDetTab('proof')">Updates</button>
+      <button class="det-tab"        id="dtab-invoice" onclick="switchDetTab('invoice')">Invoice</button>
+    </div>
+
+    <!-- Items tab -->
+    <div id="det-items-panel">
+      <div class="det-card">
+        <div class="det-table-hdr"><span>Items</span><span>Price</span></div>
+        <div id="det-items-list"></div>
+      </div>
+    </div>
+
+    <!-- Updates tab -->
+    <div id="det-proof-panel" class="hidden">
+      <div class="proof-card">
+        <div class="proof-title">Traveller Updates</div>
+        <div class="proof-subtitle">Your traveller posts proof images &amp; messages at each step to keep you informed.</div>
+        <div id="det-proof-list"></div>
+      </div>
+    </div>
+
+    <!-- Invoice tab -->
+    <div id="det-invoice-panel" class="hidden">
+      <div class="det-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-size:14px;font-weight:700">Invoice</span>
+          <span style="font-size:12px;color:var(--gray-text)" id="det-inv-date"></span>
+        </div>
+        <div id="det-inv-rows"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div class="det-actions" id="det-actions" style="padding:12px 16px 28px">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="JS/jastip-orders.js"></script>
+
+
+<!-- ══ REPORT OVERLAY ══ -->
+<div class="report-overlay" id="reportOverlay">
+  <div class="report-sheet">
+    <div class="report-handle"></div>
+    <div class="report-title">Report</div>
+    <div class="report-sub" id="reportTarget"></div>
+
+    <!-- Reason choices -->
+    <div class="report-section">What is this report about?</div>
+    <div class="report-choices" id="reportChoices"></div>
+
+    <!-- Other description -->
+    <div id="reportOtherWrap" style="display:none;margin-top:12px">
+      <textarea class="report-textarea" id="reportDescription" placeholder="Please describe the issue in detail..." maxlength="500" rows="4"></textarea>
+      <div style="font-size:11px;color:var(--gray-text);text-align:right;margin-top:4px"><span id="reportCharCount">0</span>/500</div>
+    </div>
+    <!-- Description optional for non-other -->
+    <div id="reportDescWrap" style="display:none;margin-top:12px">
+      <div class="report-section" style="margin-bottom:6px">Additional details (optional)</div>
+      <textarea class="report-textarea" id="reportDescOptional" placeholder="Add more details..." maxlength="500" rows="3"></textarea>
+    </div>
+
+    <div class="report-error" id="reportError">Please select a reason.</div>
+
+    <button class="report-submit-btn" id="reportSubmitBtn" onclick="submitReport()">
+      <span class="btn-text">Submit Report</span>
+      <div class="spinner"></div>
+    </button>
+    <button class="report-cancel-btn" onclick="closeReport()">Cancel</button>
+  </div>
+</div>
+</body>
+</html>

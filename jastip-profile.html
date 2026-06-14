@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-profile.css"/>
+</head>
+<body>
+<div class="page fade-in">
+  <div class="avatar-banner">
+    <div class="avatar-circle"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="18"/><ellipse cx="40" cy="68" rx="28" ry="18"/></svg></div>
+    <div class="avatar-edit" onclick="showToast('📷 Change profile photo')">📷</div>
+  </div>
+  <div class="user-info">
+    <div class="user-name" id="profileName">Loading...</div>
+    <div class="user-email" id="profileEmail"></div>
+    <div id="modeBadge" style="display:inline-flex;align-items:center;gap:6px;background:var(--purple-bg);color:var(--purple);font-size:12px;font-weight:600;padding:4px 14px;border-radius:20px;margin-top:8px">👤 Customer</div>
+  </div>
+  <!-- Active mode badge shown below user info -->
+  <div class="menu-list scroll-body" id="menuList"></div>
+</div>
+
+<!-- Edit Profile Overlay -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-header">
+    <button class="edit-back" onclick="closeEdit()">‹</button>
+    <div class="edit-title">Edit Profile</div>
+  </div>
+  <div class="edit-avatar-banner">
+    <div class="edit-avatar-circle"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="18"/><ellipse cx="40" cy="68" rx="28" ry="18"/></svg></div>
+    <div class="edit-avatar-btn" onclick="showToast('📷 Change photo')">📷</div>
+  </div>
+  <div class="edit-body">
+    <!-- VIEW -->
+    <div id="viewMode">
+      <div class="info-card">
+        <div class="info-row"><div class="info-label">Name</div><div class="info-value" id="displayName"></div></div>
+        <div class="info-row"><div class="info-label">Email</div><div class="info-value" id="displayEmail"></div></div>
+        <div class="info-row"><div class="info-label">Phone Number</div><div class="info-value" id="displayPhone"></div></div>
+        <div class="info-row"><div class="info-label">Password</div><div class="info-value masked">••••••••</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="closeEdit()">Back</button>
+        <button class="btn btn-edit" onclick="enterEditMode()">Edit</button>
+      </div>
+    </div>
+    <!-- EDIT -->
+    <div id="editMode" class="edit-form">
+      <div class="field-group"><div class="field-label">Name</div><div class="field-wrap"><input type="text" id="editName" placeholder="Full name"/></div><div class="err-msg" id="nameErr">Please enter your name.</div></div>
+      <div class="field-group"><div class="field-label">Email</div><div class="field-wrap"><input type="email" id="editEmail" placeholder="Email address"/></div><div class="err-msg" id="emailErr">Please enter a valid email.</div></div>
+      <div class="field-group"><div class="field-label">Phone Number</div><div class="field-wrap"><input type="tel" id="editPhone" placeholder="Phone number"/></div><div class="err-msg" id="phoneErr">Please enter a valid phone number.</div></div>
+      <div class="field-group">
+        <div class="field-label">Current Password <span style="color:var(--gray-text);font-weight:400">(required to save)</span></div>
+        <div class="field-wrap"><input type="password" id="currentPw" placeholder="Enter current password"/><button class="toggle-pw" type="button" onclick="toggleVis('currentPw',this)">👁</button></div>
+        <div class="err-msg" id="currentPwErr">Incorrect password.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">New Password <span style="color:var(--gray-text);font-weight:400">(optional)</span></div>
+        <div class="field-wrap"><input type="password" id="newPw" placeholder="Leave blank to keep current"/><button class="toggle-pw" type="button" onclick="toggleVis('newPw',this)">👁</button></div>
+        <div class="err-msg" id="newPwErr">New password must be at least 6 characters.</div>
+      </div>
+      <div class="verify-note">🔒 Don't know your current password? <a href="#" style="color:var(--purple);font-weight:600" onclick="openVerifySheet(event)">Verify via Email</a></div>
+      <div class="btn-row">
+        <button class="btn btn-cancel" onclick="cancelEdit()">Cancel</button>
+        <button class="btn btn-save" id="saveBtn" onclick="saveChanges()"><span class="btn-text">Save</span><div class="spinner"></div></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OTP Sheet -->
+<div class="overlay" id="verifyOverlay" onclick="closeVerifySheet(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">Verify your email</div>
+    <div class="sheet-sub">We sent a 6-digit code to <strong id="sheetEmail"></strong>.</div>
+    <div class="otp-row"><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/><input class="otp-input" maxlength="1" type="text" inputmode="numeric"/></div>
+    <div class="resend-row"><span class="resend-timer" id="resendTimer">Resend in <strong id="countdown">60</strong>s</span><button class="resend-btn hidden" id="resendBtn" onclick="startResendTimer()">Resend</button></div>
+    <button class="btn-verify" onclick="submitOTP()">Verify & Continue</button>
+  </div>
+</div>
+
+<!-- Logout Sheet -->
+<div class="overlay" id="logoutOverlay" onclick="hideLogoutSheet(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="confirm-title">Log Out</div>
+    <div class="confirm-sub">Are you sure you want to log out?</div>
+    <div class="confirm-btns">
+      <button class="btn-cancel-sheet" onclick="hideLogoutSheet()">Cancel</button>
+      <button class="btn-logout-sheet" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Become Traveller Overlay -->
+<div class="bt-overlay" id="becomeTravellerOverlay">
+  <div class="bt-header">
+    <button class="bt-back" onclick="closeBecomeOverlay()">‹</button>
+    <div class="bt-title">Become a Traveller</div>
+  </div>
+  <div class="bt-body">
+    <div class="bt-note">✈️ Fill in your identity details below. All fields marked * are required.</div>
+
+    <div class="bt-label">NIK (National ID Number) *</div>
+    <input class="bt-input" id="bt-nik" type="text" inputmode="numeric" maxlength="16" placeholder="16-digit NIK number" />
+    <div class="bt-required" id="bt-nik-err">NIK is required (16 digits).</div>
+
+    <div class="bt-label">Full Name (as on ID card) *</div>
+    <input class="bt-input" id="bt-name" type="text" placeholder="Full name" />
+    <div class="bt-required" id="bt-name-err">Name is required.</div>
+
+    <div class="bt-label">Date of Birth *</div>
+    <input class="bt-input" id="bt-dob" type="date" min="1950-01-01" max="2010-12-31" />
+    <div class="bt-required" id="bt-dob-err">Date of birth is required.</div>
+
+    <div class="bt-label">Gender *</div>
+    <select class="bt-select" id="bt-gender" style="width:100%;margin-bottom:4px">
+      <option value="">Select gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    <div class="bt-required" id="bt-gender-err">Gender is required.</div>
+
+    <div class="bt-label">Address *</div>
+    <input class="bt-input" id="bt-address" type="text" placeholder="Full address" />
+    <div class="bt-required" id="bt-address-err">Address is required.</div>
+
+    <div class="bt-label">Profession *</div>
+    <input class="bt-input" id="bt-profession" type="text" placeholder="e.g. Student, Employee, Freelancer" />
+    <div class="bt-required" id="bt-profession-err">Profession is required.</div>
+
+    <div class="bt-section">ID Card Photo *</div>
+    <div class="bt-photo-box" id="bt-id-box" onclick="document.getElementById('bt-id-input').click()">
+      <div class="bt-photo-hint" id="bt-id-hint">
+        <div style="font-size:28px">🪪</div>
+        <div style="font-size:12px;margin-top:4px">Tap to upload ID card photo</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">JPG or PNG, max 5MB</div>
+      </div>
+      <input type="file" id="bt-id-input" accept="image/*" style="display:none" onchange="handleBtPhoto('bt-id-input','bt-id-box','bt-id-hint')" />
+    </div>
+    <div class="bt-required" id="bt-id-err">ID card photo is required.</div>
+
+    <div class="bt-section">Selfie Photo *</div>
+    <div class="bt-photo-box" id="bt-proof-box" onclick="document.getElementById('bt-proof-input').click()">
+      <div class="bt-photo-hint" id="bt-proof-hint">
+        <div style="font-size:28px">🤳</div>
+        <div style="font-size:12px;margin-top:4px">Selfie holding your ID card</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">JPG or PNG, max 5MB</div>
+      </div>
+      <input type="file" id="bt-proof-input" accept="image/*" style="display:none" onchange="handleBtPhoto('bt-proof-input','bt-proof-box','bt-proof-hint')" />
+    </div>
+    <div class="bt-required" id="bt-proof-err">Selfie photo is required.</div>
+
+    <button class="bt-submit" id="bt-submit-btn" onclick="submitBecomeTraveller()">
+      <span class="btn-text">Submit & Become Traveller</span>
+      <div class="spinner"></div>
+    </button>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="bottom-nav">
+  <button class="bnav-btn" id="bnOrders" onclick="location.href='jastip-orders.html'"><span class="icon">🛒</span><span class="label">Orders</span></button>
+  <button class="bnav-btn" id="bnHome"><span class="icon">🏠</span><span class="label">Home</span></button>
+  <button class="bnav-btn" onclick="location.href='jastip-chat.html'"><span class="icon">💬</span><span class="label">Chat</span></button>
+</div>
+
+<script src="JS/jastip-profile.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-register.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     SCREEN 1 — Account Details
+══════════════════════════════ -->
+<div class="screen active" id="screen1">
+  <div class="progress">
+    <div class="prog-dot done" id="p1"></div>
+    <div class="prog-dot" id="p2"></div>
+    <div class="prog-dot" id="p3"></div>
+    <div class="prog-dot" id="p4"></div>
+  </div>
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Create Account</div>
+    <div class="step-title">Step 1 of 4 — Your Details</div>
+  </div>
+
+  <div class="form">
+    <div class="input-group">
+      <input type="email" id="emailInput" placeholder="Email" autocomplete="email" />
+      <div class="error-msg" id="emailError">Please enter a valid email.</div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="nameInput" placeholder="Full Name" autocomplete="name" />
+      <div class="error-msg" id="nameError">Please enter your name.</div>
+    </div>
+    <div class="input-group">
+      <input type="tel" id="phoneInput" placeholder="Phone Number" autocomplete="tel" />
+      <div class="error-msg" id="phoneError">Please enter a valid phone number.</div>
+    </div>
+    <div class="input-group">
+      <input type="password" id="passwordInput" placeholder="Password" autocomplete="new-password" />
+      <button class="toggle-pw" id="togglePw1" type="button">👁</button>
+      <div class="error-msg" id="passwordError">Password must be at least 6 characters.</div>
+    </div>
+    <div class="input-group">
+      <input type="password" id="confirmInput" placeholder="Confirm Password" autocomplete="new-password" />
+      <button class="toggle-pw" id="togglePw2" type="button">👁</button>
+      <div class="error-msg" id="confirmError">Passwords do not match.</div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn-main" id="step1Btn" onclick="goStep2()">
+      <span class="btn-text">Next</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+  <div class="bottom-link"><a href="jastip-login.html">Already have an account?</a></div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN OTP — Email Verification
+══════════════════════════════ -->
+<div class="screen" id="screenOtp">
+  <div class="progress">
+    <div class="prog-dot done" id="op1"></div>
+    <div class="prog-dot done" id="op2"></div>
+    <div class="prog-dot" id="op3"></div>
+    <div class="prog-dot" id="op4"></div>
+  </div>
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Verify Your Email</div>
+    <div class="step-title">Step 2 of 4 — Email Verification</div>
+  </div>
+
+  <div class="form">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:64px;height:64px;background:var(--purple-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">📧</div>
+      <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Check your inbox</div>
+      <div style="font-size:13px;color:var(--gray-text);line-height:1.6">We sent a 6-digit verification code to<br/><strong id="otpEmailDisplay" style="color:var(--dark)"></strong></div>
+    </div>
+
+    <!-- OTP digit inputs -->
+    <div id="otpInputWrap" style="display:flex;justify-content:center;gap:10px;margin-bottom:8px">
+      <input class="otp-box" id="otp0" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,0)" oninput="otpInput(this,0)"/>
+      <input class="otp-box" id="otp1" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,1)" oninput="otpInput(this,1)"/>
+      <input class="otp-box" id="otp2" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,2)" oninput="otpInput(this,2)"/>
+      <input class="otp-box" id="otp3" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,3)" oninput="otpInput(this,3)"/>
+      <input class="otp-box" id="otp4" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,4)" oninput="otpInput(this,4)"/>
+      <input class="otp-box" id="otp5" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" onkeyup="otpKey(event,5)" oninput="otpInput(this,5)"/>
+    </div>
+    <div class="error-msg" id="otpError" style="text-align:center;margin-bottom:12px">Incorrect code. Please try again.</div>
+
+    <!-- Timer & resend -->
+    <div style="text-align:center;margin-bottom:24px">
+      <span style="font-size:13px;color:var(--gray-text)" id="otpTimerLabel">Resend code in </span>
+      <span style="font-size:13px;font-weight:600;color:var(--purple)" id="otpTimer">60s</span>
+      <button id="otpResendBtn" onclick="otpResend()" style="display:none;background:none;border:none;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:var(--purple);cursor:pointer">Resend code</button>
+    </div>
+
+
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn-main purple" id="otpVerifyBtn" onclick="verifyOtp()">
+      <span class="btn-text">Verify &amp; Continue</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+  <div class="bottom-link"><a onclick="goScreen('screen1');return false" href="#">← Change email</a></div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 2 — Role Selection
+══════════════════════════════ -->
+<div class="screen" id="screen2">
+  <div class="progress">
+    <div class="prog-dot done"></div>
+    <div class="prog-dot done"></div>
+    <div class="prog-dot" id="p3b"></div>
+  </div>
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Who are you?</div>
+    <div class="step-title">Step 2 of 3 — Choose your role</div>
+  </div>
+
+  <div class="role-wrap">
+    <div class="role-card" id="roleCustomer" onclick="selectRole('customer')">
+      <div class="role-icon">📦</div>
+      <div class="role-label">I want to Jastip!</div>
+      <div class="role-desc">I want to order items from abroad through a traveller</div>
+    </div>
+    <div class="role-card" id="roleTraveller" onclick="selectRole('traveller')">
+      <div class="role-icon">✈️</div>
+      <div class="role-label">I am a Traveller!</div>
+      <div class="role-desc">I travel abroad and help others bring back items</div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn-main purple" onclick="goStep3()">
+      <span class="btn-text">Next</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 3a — Customer Done
+     (shown if customer selected)
+══════════════════════════════ -->
+<!-- No screen needed — handled by JS redirect -->
+
+<!-- ══════════════════════════════
+     SCREEN 3b — Traveller ID Card
+══════════════════════════════ -->
+<div class="screen" id="screen3">
+  <div class="progress">
+    <div class="prog-dot done"></div>
+    <div class="prog-dot done"></div>
+    <div class="prog-dot done"></div>
+  </div>
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Verify Your Identity</div>
+    <div class="step-title">Step 3 of 3 — ID Card (optional)</div>
+  </div>
+
+  <div class="id-wrap">
+    <div class="skip-note">
+      This is <span>optional</span> — you can skip and add it later when creating your first trip.
+      If you add it now, you won't need to fill it in when creating trips.
+    </div>
+
+    <input class="field-input" id="id-nik"     type="text"   placeholder="NIK (National ID Number)" />
+    <input class="field-input" id="id-name"    type="text"   placeholder="Name (as on ID)" />
+    <div class="row2">
+      <input class="field-input half" id="id-dob" type="date" min="1950-01-01" max="2010-12-31" placeholder="Date of Birth" style="font-size:12px" />
+      <select class="field-select" id="id-gender">
+        <option value="">Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+    </div>
+    <input class="field-input" id="id-address" type="text"   placeholder="Address" />
+    <input class="field-input" id="id-workid"  type="text"   placeholder="Work ID / Profession (optional)" />
+
+    <div class="section-label">Photo of ID Card *</div>
+    <div class="photo-box" id="id-photo-box" onclick="document.getElementById('id-photo-input').click()">
+      <div class="photo-hint" id="id-photo-hint">
+        <div style="font-size:32px">🪪</div>
+        <div style="font-size:12px;margin-top:6px">Tap to upload ID card photo</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">KTP / Passport</div>
+      </div>
+      <input type="file" id="id-photo-input" accept="image/*" style="display:none" onchange="handleIdPhoto(this,'id-photo-box','id-photo-hint')" />
+    </div>
+
+    <div class="section-label">Selfie Holding ID Card *</div>
+    <div class="photo-box" id="selfie-photo-box" onclick="document.getElementById('selfie-photo-input').click()">
+      <div class="photo-hint" id="selfie-photo-hint">
+        <div style="font-size:32px">🤳</div>
+        <div style="font-size:12px;margin-top:6px">Selfie holding your ID card</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">Required for verification</div>
+      </div>
+      <input type="file" id="selfie-photo-input" accept="image/*" style="display:none" onchange="handleIdPhoto(this,'selfie-photo-box','selfie-photo-hint')" />
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn-main purple" id="finishBtn" onclick="finishRegister(false)">
+      <span class="btn-text">Finish & Save ID</span>
+      <div class="spinner"></div>
+    </button>
+    <button class="btn-skip" onclick="finishRegister(true)">Skip for now →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SUCCESS OVERLAY
+══════════════════════════════ -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-check">✓</div>
+  <div class="success-title" id="successTitle">Welcome to JasTip!</div>
+  <div class="success-sub" id="successSub">Your account has been created successfully.</div>
+  <div class="success-role-badge" id="successBadge">👤 Customer</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="JS/jastip-register.js"></script>
+
+</body>
+</html>

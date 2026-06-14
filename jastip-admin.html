@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>JasTip Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/jastip-admin.css"/>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══ -->
+<div class="admin-topbar">
+  <div class="admin-logo">JasTip <span>Admin</span></div>
+  <div class="admin-user" id="adminUserName">Admin</div>
+  <button class="admin-logout" onclick="adminLogout()">Log out</button>
+</div>
+
+<!-- ══ STATS ROW ══ -->
+<div class="admin-stats" id="adminStats">
+  <div class="stat-card"><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending</div></div>
+  <div class="stat-card"><div class="stat-num" id="statReviewing">0</div><div class="stat-lbl">Reviewing</div></div>
+  <div class="stat-card"><div class="stat-num" id="statResolved">0</div><div class="stat-lbl">Resolved</div></div>
+  <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total</div></div>
+</div>
+
+<!-- ══ FILTER TABS ══ -->
+<div class="admin-tabs">
+  <button class="admin-tab active" data-status="all"       onclick="filterTickets('all')">All</button>
+  <button class="admin-tab"        data-status="pending"   onclick="filterTickets('pending')">Pending</button>
+  <button class="admin-tab"        data-status="reviewing" onclick="filterTickets('reviewing')">Reviewing</button>
+  <button class="admin-tab"        data-status="resolved"  onclick="filterTickets('resolved')">Resolved</button>
+</div>
+
+<!-- ══ TICKET LIST ══ -->
+<div class="admin-ticket-list" id="ticketList"></div>
+
+<!-- ══ TICKET DETAIL OVERLAY ══ -->
+<div class="admin-overlay" id="ticketOverlay">
+  <div class="admin-overlay-hdr">
+    <button class="ov-back" onclick="closeTicket()">‹</button>
+    <div class="ov-title">Report Detail</div>
+    <div class="ov-spacer"></div>
+  </div>
+  <div class="ov-body" id="ticketDetail"></div>
+
+  <!-- Chat panel -->
+  <div class="admin-chat-panel" id="adminChatPanel">
+    <div class="ac-hdr">
+      <div class="ac-hdr-title">Chat with <span id="chatWithName"></span></div>
+    </div>
+    <div class="ac-messages" id="acMessages"></div>
+    <div class="ac-input-bar">
+      <label class="ac-attach" title="Attach file/document">
+        📎
+        <input type="file" id="acFileInput" style="display:none" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" onchange="acSendFile(this)"/>
+      </label>
+      <textarea class="ac-input" id="acInput" placeholder="Type a message..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();acSend()}"></textarea>
+      <button class="ac-send" onclick="acSend()">➤</button>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="ov-actions" id="ovActions"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="JS/jastip-admin.js"></script>
+</body>
+</html>

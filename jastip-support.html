@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>JasTip – Support</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/jastip-support.css"/>
+</head>
+<body>
+
+<!-- ══ SCREEN 1: My Reports List ══ -->
+<div class="page active" id="screenList">
+  <div class="support-header">
+    <button class="back-btn" onclick="history.back()">‹</button>
+    <div class="hdr-title">My Reports</div>
+    <div class="hdr-spacer"></div>
+  </div>
+  <div class="support-body" id="reportList"></div>
+</div>
+
+<!-- ══ SCREEN 2: Chat with Admin ══ -->
+<div class="page" id="screenChat">
+  <div class="support-header">
+    <button class="back-btn" onclick="showScreen('screenList')">‹</button>
+    <div style="display:flex;align-items:center;gap:10px;flex:1">
+      <div class="admin-avatar">🛡️</div>
+      <div>
+        <div class="hdr-title" style="font-size:15px">JasTip Support</div>
+        <div style="font-size:11px;color:var(--gray-text)">Admin team</div>
+      </div>
+    </div>
+  </div>
+  <!-- Ticket info banner -->
+  <div class="ticket-banner" id="ticketBanner"></div>
+  <!-- Messages -->
+  <div class="chat-messages" id="chatMessages"></div>
+  <!-- Input — only enabled if reviewing -->
+  <div class="chat-input-bar" id="chatInputBar">
+    <label class="chat-attach" title="Send file or document">
+      📎
+      <input type="file" id="supportFileInput" style="display:none"
+        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+        onchange="sendUserFile(this)"/>
+    </label>
+    <textarea class="chat-input" id="chatInput" placeholder="Reply to admin..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendUserMsg()}"></textarea>
+    <button class="chat-send" onclick="sendUserMsg()">➤</button>
+  </div>
+  <div class="chat-closed-bar" id="chatClosedBar" style="display:none">
+    <span>This ticket has been resolved. No further replies needed.</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="JS/jastip-support.js"></script>
+</body>
+</html>

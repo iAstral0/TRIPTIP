@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Traveller Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-traveller-home.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     TOP NAV
+══════════════════════════════ -->
+<div class="topnav">
+  <div class="search-bar">
+    <span style="color:var(--gray-text);font-size:15px">🔍</span>
+    <input type="text" placeholder="Search orders, cities, countries..." oninput="travellerSearch(this.value)" id="travSearchInput" />
+  </div>
+  <div class="nav-icons">
+    <button class="nav-icon-btn" onclick="location.href='jastip-profile.html'">👤</button>
+  </div>
+</div>
+
+<!-- Search overlay + results panel -->
+<div class="sr-overlay" id="travSrOverlay" onclick="closeTravSearch()"></div>
+<div class="search-results" id="travSearchResults"></div>
+
+<!-- ══════════════════════════════
+     SCROLL BODY
+══════════════════════════════ -->
+<div class="scroll-body">
+
+  <!-- Banner -->
+  <div class="banner fade-in">
+    <span class="banner-label">Gambar</span>
+  </div>
+
+  <!-- Create A New Trip -->
+  <div class="section fade-in" style="animation-delay:0.06s">
+    <div class="section-title">Create A New Trip</div>
+    <div class="trip-row">
+      <div class="trip-item" onclick="openCreateTrip('International')">
+        <div class="trip-img">✈️</div>
+        <span class="trip-name">International</span>
+      </div>
+      <div class="trip-item" onclick="openCreateTrip('Domestic')">
+        <div class="trip-img">🏠</div>
+        <span class="trip-name">Domestic</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Current Orders (quick access) -->
+  <div class="current-section fade-in" style="animation-delay:0.12s">
+    <div class="current-title">Current Orders</div>
+    <div id="currentOrdersList"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════
+     BOTTOM NAV
+══════════════════════════════ -->
+<div class="bottom-nav">
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-orders.html'">
+    <span class="icon">🛒</span><span class="label">Orders</span>
+  </button>
+  <button class="bnav-btn active" onclick="location.href='jastip-traveller-home.html'">
+    <span class="icon">🏠</span><span class="label">Home</span>
+  </button>
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-chat.html'">
+    <span class="icon">💬</span><span class="label">Chat</span>
+  </button>
+</div>
+
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ Create Trip: Step 1 — Trip Details ══ -->
+<div class="ct-screen" id="ctStep1">
+  <div class="ct-header">
+    <button class="ct-back" onclick="closeCreateTrip()">‹</button>
+    <div class="ct-title">Create A New Trip</div>
+    <div class="ct-spacer"></div>
+  </div>
+  <div class="ct-progress"><div class="ct-prog-dot done"></div><div class="ct-prog-dot"></div><div class="ct-prog-dot"></div></div>
+  <div class="ct-step-label">Step 1 of 3 — Trip Details</div>
+  <div class="ct-body">
+    <!-- ══ TRANSPORT TYPE — shown first for DOMESTIC only ══ -->
+    <div class="form-dom-only" style="display:none;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:8px">🚌 Transport Type</div>
+      <div style="display:flex;gap:10px">
+        <button id="domTransAirport" onclick="domSelectTransport('airport')" style="flex:1;padding:11px;border:2px solid #ddd;border-radius:10px;background:var(--white);font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">✈️ Airport</button>
+        <button id="domTransVehicle" onclick="domSelectTransport('vehicle')" style="flex:1;padding:11px;border:2px solid #ddd;border-radius:10px;background:var(--white);font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s">🚌 Vehicle</button>
+      </div>
+    </div>
+
+    <div class="ct-section-title">Origin to Destination</div>
+
+    <!-- ══ INTERNATIONAL: Booking + Flight, then From/To ══ -->
+    <div class="form-intl-only">
+      <div class="ct-grid2" style="margin-bottom:10px">
+        <input class="ct-input" id="ct-booking" type="text" placeholder="Booking Code" />
+        <input class="ct-input" id="ct-flight"  type="text" placeholder="Flight Number" />
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">🛫 From (Country you are travelling from)</div>
+      <div class="ct-grid2" style="margin-bottom:10px">
+        <select class="ct-input-select" id="ct-from-country" onchange="updateFromCities()">
+          <option value="">Select Country</option>
+          <option>Singapore</option><option>Japan</option><option>Korea</option>
+          <option>Malaysia</option><option>Thailand</option><option>USA</option>
+          <option>UK</option><option>Australia</option><option>France</option>
+          <option>Germany</option><option>China</option><option>Hong Kong</option>
+          <option>Turkey</option><option>India</option><option>Italy</option>
+          <option>Spain</option><option>Netherlands</option><option>Sweden</option>
+          <option>UAE</option><option>Saudi Arabia</option>
+        </select>
+        <select class="ct-input-select" id="ct-from">
+          <option value="">Select Town / City</option>
+        </select>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">🛬 To (Destination Country)</div>
+      <div class="ct-grid2" style="margin-bottom:10px">
+        <select class="ct-input-select" id="ct-to-country" onchange="updateToCities()">
+          <option value="">Select Country</option>
+          <option>Indonesia</option>
+          <option>Singapore</option><option>Japan</option><option>Korea</option>
+          <option>Malaysia</option><option>Thailand</option><option>USA</option>
+          <option>UK</option><option>Australia</option><option>France</option>
+          <option>Germany</option><option>China</option><option>Hong Kong</option>
+          <option>Turkey</option><option>India</option><option>Italy</option>
+          <option>Spain</option><option>Netherlands</option><option>Sweden</option>
+          <option>UAE</option><option>Saudi Arabia</option>
+        </select>
+        <select class="ct-input-select" id="ct-to">
+          <option value="">Select City / Airport</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ══ DOMESTIC: From/To cities, then airport/vehicle details ══ -->
+    <div class="form-dom-only" style="display:none">
+      <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">🛫 From (Indonesian City)</div>
+      <div style="margin-bottom:10px">
+        <select class="ct-input-select" id="ct-dom-from" style="width:100%" onchange="document.getElementById('ct-city').value=this.value">
+          <option value="">Select City</option>
+          <option>Jakarta</option><option>Bandung</option><option>Surabaya</option>
+          <option>Yogyakarta</option><option>Bali / Denpasar</option><option>Malang</option>
+          <option>Solo</option><option>Semarang</option><option>Medan</option>
+          <option>Makassar</option><option>Palembang</option><option>Manado</option>
+          <option>Pontianak</option><option>Balikpapan</option><option>Pekanbaru</option>
+          <option>Jambi</option><option>Padang</option><option>Lombok</option>
+        </select>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">🛬 To (Indonesian City)</div>
+      <div style="margin-bottom:10px">
+        <select class="ct-input-select" id="ct-dom-to" style="width:100%" onchange="document.getElementById('ct-return-airport').value=this.value">
+          <option value="">Select City</option>
+          <option>Jakarta</option><option>Bandung</option><option>Surabaya</option>
+          <option>Yogyakarta</option><option>Bali / Denpasar</option><option>Malang</option>
+          <option>Solo</option><option>Semarang</option><option>Medan</option>
+          <option>Makassar</option><option>Palembang</option><option>Manado</option>
+          <option>Pontianak</option><option>Balikpapan</option><option>Pekanbaru</option>
+          <option>Jambi</option><option>Padang</option><option>Lombok</option>
+        </select>
+      </div>
+
+      <!-- Airport fields (booking code + flight + airport) -->
+      <div id="domAirportFields" style="display:none">
+        <div class="ct-grid2" style="margin-bottom:10px">
+          <input class="ct-input" id="ct-dom-booking" type="text" placeholder="Booking Code" />
+          <input class="ct-input" id="ct-dom-flight"  type="text" placeholder="Flight Number" />
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">🛬 Arrival Airport</div>
+        <select class="ct-input-select" id="ct-dom-airport" style="width:100%;margin-bottom:10px">
+          <option value="">Select Arrival Airport</option>
+          <option value="CGK – Soekarno-Hatta, Jakarta">CGK – Soekarno-Hatta, Jakarta</option>
+          <option value="DPS – Ngurah Rai, Bali">DPS – Ngurah Rai, Bali</option>
+          <option value="SUB – Juanda, Surabaya">SUB – Juanda, Surabaya</option>
+          <option value="UPG – Hasanuddin, Makassar">UPG – Hasanuddin, Makassar</option>
+          <option value="MDC – Sam Ratulangi, Manado">MDC – Sam Ratulangi, Manado</option>
+          <option value="BPN – Sultan Aji, Balikpapan">BPN – Sultan Aji, Balikpapan</option>
+          <option value="KNO – Kualanamu, Medan">KNO – Kualanamu, Medan</option>
+          <option value="JOG – Adisutjipto, Yogyakarta">JOG – Adisutjipto, Yogyakarta</option>
+          <option value="PLM – SMB II, Palembang">PLM – SMB II, Palembang</option>
+          <option value="BDO – Husein Sastranegara, Bandung">BDO – Husein Sastranegara, Bandung</option>
+          <option value="SRG – Ahmad Yani, Semarang">SRG – Ahmad Yani, Semarang</option>
+          <option value="SOC – Adisumarmo, Solo">SOC – Adisumarmo, Solo</option>
+          <option value="MLG – Abdul Rachman Saleh, Malang">MLG – Abdul Rachman Saleh, Malang</option>
+          <option value="PKU – Sultan Syarif Kasim, Pekanbaru">PKU – Sultan Syarif Kasim, Pekanbaru</option>
+        </select>
+      </div>
+
+      <!-- Vehicle — optional proof photo -->
+      <div id="domVehicleFields" style="display:none">
+        <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">📸 Proof Photo <span style="font-weight:400;color:var(--gray-text)">(optional — ticket, schedule, etc.)</span></div>
+        <div class="ct-photo-box" id="ct-veh-proof-box" onclick="document.getElementById('ct-veh-proof-input').click()" style="height:100px">
+          <div class="ct-photo-hint" id="ct-veh-proof-hint"><div style="font-size:24px">🚌</div><div style="font-size:11px;margin-top:4px">Tap to upload proof (optional)</div></div>
+          <input type="file" id="ct-veh-proof-input" accept="image/*" style="display:none" onchange="handleCtPhoto('ct-veh-proof-input','ct-veh-proof-box','ct-veh-proof-hint')" />
+        </div>
+      </div>
+      <input type="hidden" id="ct-transport" />
+    </div>
+
+    <!-- Hidden fields (shared) -->
+    <input type="hidden" id="ct-country" />
+    <input type="hidden" id="ct-city" />
+    <input type="hidden" id="ct-return-airport" />
+
+    <!-- Dates -->
+    <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">📅 Order Closes Date <span style="font-weight:400">(last day customers can order)</span></div>
+    <div style="margin-bottom:10px">
+      <input class="ct-input" id="ct-depart" type="date" min="2025-01-01" max="2035-12-31" style="width:100%;font-size:13px"/>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px" id="ctArriveLbl">🗓️ Estimated Arrival Date</div>
+    <div style="margin-bottom:10px">
+      <input class="ct-input" id="ct-arrive" type="date" min="2025-01-01" max="2035-12-31" style="width:100%;font-size:13px"/>
+    </div>
+
+    <!-- Weight and Price -->
+    <div class="ct-grid2">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">Max Weight</div>
+        <div style="position:relative">
+          <input class="ct-input" id="ct-maxkg" type="number" placeholder="e.g. 10" min="1" max="100" style="padding-right:40px" />
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--gray-text);font-weight:600">kg</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray-text);margin-bottom:5px">Price per kg</div>
+        <div style="position:relative">
+          <input class="ct-input" id="ct-price" type="number" placeholder="e.g. 10000" min="1000" style="padding-right:40px" />
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--gray-text);font-weight:600">Rp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ct-section-title" id="ctProofSectionTitle">Photo of Proof</div>
+    <div class="ct-photo-box" id="ct-ticket-box" onclick="document.getElementById('ct-ticket-input').click()">
+      <div class="ct-photo-hint" id="ct-ticket-hint"><div style="font-size:28px" id="ctProofIcon">🎫</div><div style="font-size:11px;margin-top:4px" id="ctProofHintTxt">Tap to upload ticket / booking proof</div></div>
+      <input type="file" id="ct-ticket-input" accept="image/*" style="display:none" onchange="handleCtPhoto('ct-ticket-input','ct-ticket-box','ct-ticket-hint')" />
+    </div>
+
+    <div class="ct-section-title">Rules</div>
+    <div id="ct-rules-list"></div>
+    <button class="ct-add-rule" onclick="addCtRule()">+ Add Rule</button>
+    <div style="height:16px"></div>
+  </div>
+  <div class="ct-footer">
+    <button class="ct-next-btn ready" onclick="validateStep1()">Next</button>
+  </div>
+</div>
+
+<!-- ══ Create Trip: Step 2 — ID Verification ══ -->
+<div class="ct-screen" id="ctStep2">
+  <div class="ct-header">
+    <button class="ct-back" onclick="goCtStep(1)">‹</button>
+    <div class="ct-title">Create A New Trip</div>
+    <div class="ct-spacer"></div>
+  </div>
+  <div class="ct-progress"><div class="ct-prog-dot done"></div><div class="ct-prog-dot done"></div><div class="ct-prog-dot"></div></div>
+  <div class="ct-step-label">Step 2 of 3 — Identity Verification</div>
+  <div class="ct-body">
+    <div style="font-size:12px;color:var(--gray-text);margin-bottom:14px;line-height:1.6">Your identity is required to create a trip. This will be verified once and stored securely.</div>
+    <input class="ct-input" id="ct-nik"     type="text"   placeholder="NIK (National ID Number)" style="margin-bottom:10px" />
+    <input class="ct-input" id="ct-idname"  type="text"   placeholder="Name (as on ID)" style="margin-bottom:10px" />
+    <div class="ct-grid2">
+      <input class="ct-input" id="ct-dob"   type="date"   style="font-size:12px" placeholder="Date of Birth" />
+      <select class="ct-input-select" id="ct-gender">
+        <option value="">Gender</option><option>Male</option><option>Female</option>
+      </select>
+    </div>
+    <input class="ct-input" id="ct-address" type="text"   placeholder="Address" style="margin-bottom:10px;margin-top:10px" />
+    <input class="ct-input" id="ct-workid"  type="text"   placeholder="Work ID / Profession (optional)" style="margin-bottom:14px" />
+    <div class="ct-section-title">Photo of ID Card *</div>
+    <div class="ct-photo-box" id="ct-id-box" onclick="document.getElementById('ct-id-input').click()">
+      <div class="ct-photo-hint" id="ct-id-hint"><div style="font-size:28px">🪪</div><div style="font-size:11px;margin-top:4px">Tap to upload your ID card photo</div><div style="font-size:10px;color:#bbb;margin-top:2px">KTP / Passport</div></div>
+      <input type="file" id="ct-id-input" accept="image/*" style="display:none" onchange="handleCtPhoto('ct-id-input','ct-id-box','ct-id-hint')" />
+    </div>
+
+    <div class="ct-section-title" style="margin-top:14px">Selfie Holding ID Card *</div>
+    <div class="ct-photo-box" id="ct-selfie-box" onclick="document.getElementById('ct-selfie-input').click()">
+      <div class="ct-photo-hint" id="ct-selfie-hint"><div style="font-size:28px">🤳</div><div style="font-size:11px;margin-top:4px">Selfie holding your ID card</div><div style="font-size:10px;color:#bbb;margin-top:2px">Required for verification</div></div>
+      <input type="file" id="ct-selfie-input" accept="image/*" style="display:none" onchange="handleCtPhoto('ct-selfie-input','ct-selfie-box','ct-selfie-hint')" />
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="ct-footer">
+    <button class="ct-next-btn ready" onclick="validateStep2()">Next</button>
+  </div>
+</div>
+
+<!-- ══ Create Trip: Step 3 — Preview & Confirm ══ -->
+<div class="ct-screen" id="ctStep3">
+  <div class="ct-header">
+    <button class="ct-back" onclick="goCtStep(2)">‹</button>
+    <div class="ct-title">Create A New Trip</div>
+    <div class="ct-spacer"></div>
+  </div>
+  <div class="ct-progress"><div class="ct-prog-dot done"></div><div class="ct-prog-dot done"></div><div class="ct-prog-dot done"></div></div>
+  <div class="ct-step-label">Step 3 of 3 — Preview</div>
+  <div class="ct-body">
+    <div id="ct-preview-content"></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="ct-footer">
+    <button class="ct-next-btn ready" onclick="confirmCreateTrip()">Confirm</button>
+  </div>
+</div>
+
+<script src="JS/jastip-support.js"></script>
+<script src="JS/jastip-traveller-home.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>JasTip – Crowdshipping</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="CSS/jastip-crowdshipping.css"/>
+  <!-- Midtrans Snap.js — SANDBOX (switch to production URL for live) -->
+  <!-- Replace YOUR_CLIENT_KEY with your actual Midtrans Client Key from dashboard.sandbox.midtrans.com -->
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="YOUR_CLIENT_KEY"></script>
+</head>
+<body>
+
+<!-- LIST -->
+<div class="page active" id="pgList">
+  <div class="topnav">
+    <button class="back-btn" onclick="location.href='jastip-home.html'">‹</button>
+    <div class="nav-title">Crowdshipping</div>
+    <button class="nav-action" onclick="showPage('pgCreate')">＋</button>
+  </div>
+  <div class="list-tabs">
+    <button class="list-tab active" id="tabMyGroups" onclick="switchListTab('my')">My Groups</button>
+    <button class="list-tab" id="tabDiscover"  onclick="switchListTab('discover')">Discover</button>
+  </div>
+  <div class="search-wrap">
+    <div class="search-bar">
+      <span style="color:var(--gray-text)">🔍</span>
+      <input type="text" id="listSearchInput" placeholder="Search brand, country, category..." oninput="searchOrders(this.value)"/>
+    </div>
+  </div>
+  <div class="list-scroll fade-in" id="orderListEl"></div>
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="location.href='jastip-orders.html'"><span class="icon">🛒</span><span class="label">Orders</span></button>
+    <button class="bnav-btn active" onclick="location.href='jastip-home.html'"><span class="icon">🏠</span><span class="label">Home</span></button>
+    <button class="bnav-btn" onclick="location.href='jastip-chat.html'"><span class="icon">💬</span><span class="label">Chat</span></button>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="page" id="pgDetail">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgList')">‹</button>
+    <div class="nav-title" id="detailTitle">Group Detail</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="scroll-body" id="detailBody"></div>
+  <div class="bottom-cta" id="detailCta">
+    <button class="cta-btn" id="detailCtaBtn"><span class="btn-txt">Join Group</span></button>
+    <button id="detailCloseGroupBtn" onclick="ownerCloseGroup()" style="display:none;width:100%;padding:12px;background:none;border:1.5px solid var(--red);border-radius:14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--red);margin-top:8px">🔒 Close Group</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="pgChat">
+  <div class="chat-hdr">
+    <button class="back-btn" onclick="showPage('pgList')">‹</button>
+    <div class="chat-av">👥</div>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-name" id="chatName"></div>
+      <div class="chat-hdr-sub" id="chatSub"></div>
+    </div>
+    <button class="back-btn" id="chatReportBtn" style="background:#FFF5F5;color:var(--red);font-size:14px;display:none" title="Report">🚩</button>
+    <button class="back-btn" style="background:var(--purple-bg);color:var(--purple);font-size:14px" onclick="openDetail(currentGroupId)">ℹ️</button>
+  </div>
+  <div id="ownerBar" style="display:none"></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input-bar">
+    <button class="chat-attach">📎<input type="file" accept="image/*" onchange="sendImage(this)"/></button>
+    <textarea class="chat-input-field" id="chatInput" placeholder="Message..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+    <button class="chat-send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- ADD ITEM (member) -->
+<div class="page" id="pgAddItem">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgChat')">‹</button>
+    <div class="nav-title">Add Items to List</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="form-wrap">
+    <div style="font-size:12px;color:var(--purple);background:var(--purple-bg);border-radius:10px;padding:10px 14px;margin-bottom:16px;line-height:1.6">📋 Enter only the item name. The owner will review and set a price. If denied, you can resubmit.</div>
+    <div id="myItemsContainer"></div>
+    <button onclick="addMyItemRow()" style="width:100%;padding:10px;background:none;border:1.5px dashed var(--purple);border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:var(--purple);cursor:pointer;margin-bottom:14px">+ Add Another Item</button>
+  </div>
+  <div class="bottom-cta"><button class="cta-btn" onclick="submitMyItems()"><span class="btn-txt">Submit Items</span><div class="sp"></div></button></div>
+</div>
+
+<!-- SET PRICES (owner) -->
+<div class="page" id="pgSetPrices">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgChat')">‹</button>
+    <div class="nav-title">Set Item Prices</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="form-wrap">
+    <div style="font-size:12px;color:var(--gray-text);margin-bottom:14px;line-height:1.6">Set price per item per member. Toggle Deny + give a reason if you can't get an item.</div>
+    <div id="setPricesBody"></div>
+
+    <!-- Total Tax Field -->
+    <div style="background:#FFF8E1;border-left:3px solid var(--yellow);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;color:#795548;margin-bottom:6px">🧾 Total Group Tax / Import Fee</div>
+      <div style="font-size:12px;color:#795548;margin-bottom:10px;line-height:1.5">Enter the total tax / customs fee for all items. It will be split equally among all <strong>non-owner</strong> members.</div>
+      <label class="f-lbl">Total Tax Amount (Rp)</label>
+      <input class="f-input" id="groupTaxInput" type="number" min="0" placeholder="e.g. 50000 — leave 0 if no tax" style="margin-bottom:6px"/>
+      <div id="taxSplitPreview" style="font-size:12px;color:#795548;font-weight:600;min-height:18px"></div>
+    </div>
+
+    <label class="f-lbl">Upload Receipt / Price Proof *</label>
+    <div class="f-photo" id="receiptBox" onclick="document.getElementById('receiptInput').click()">
+      <div class="f-photo-hint" id="receiptHint"><div style="font-size:26px">🧾</div><div style="font-size:11px;margin-top:4px">Tap to upload receipt</div></div>
+      <input type="file" id="receiptInput" accept="image/*" onchange="previewReceipt(this)"/>
+    </div>
+  </div>
+  <div class="bottom-cta"><button class="cta-btn" onclick="submitPrices()">Send Price Notifications</button></div>
+</div>
+
+<!-- PRICE REVIEW (member) -->
+<div class="page" id="pgPriceReview">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgChat')">‹</button>
+    <div class="nav-title">Review Your Prices</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="form-wrap" id="priceReviewBody"></div>
+</div>
+
+<!-- PAYMENT -->
+<div class="page" id="pgPayment">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgChat')">‹</button>
+    <div class="nav-title">Pay to Escrow</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="scroll-body">
+    <div class="pay-card" id="payBody"></div>
+    <div class="escrow-note">🔒 <strong>Escrow</strong> — money held securely. Owner can buy only after ALL members pay. Members who don't respond in <strong>24h</strong> are auto-removed. Full refund if order fails.</div>
+  </div>
+  <div class="bottom-cta"><button class="cta-btn" id="payBtn" onclick="doPayment()"><span class="btn-txt">Pay to Escrow</span><div class="sp"></div></button></div>
+</div>
+
+<!-- COLLECTING (owner) -->
+<div class="page" id="pgCollecting">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgChat')">‹</button>
+    <div class="nav-title">Distribute Items</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <!-- Hidden file input for proof photos -->
+  <input type="file" id="collectingProofInput" accept="image/*" style="display:none" onchange="handleCollectingProof(this)"/>
+  <div class="form-wrap" id="collectingBody"></div>
+  <div class="bottom-cta"><button class="cta-btn" onclick="showPage('pgChat')">← Back to Chat</button></div>
+</div>
+
+<!-- CREATE GROUP -->
+<div class="page" id="pgCreate">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pgList')">‹</button>
+    <div class="nav-title">Create Group Order</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="form-wrap">
+    <label class="f-lbl">Brand / Store Name *</label>
+    <input class="f-input" id="co-brand" placeholder="e.g. Nike, Uniqlo, Muji"/>
+    <label class="f-lbl">Brand Photo (optional)</label>
+    <div class="f-photo" id="brandPhotoBox" onclick="document.getElementById('brandPhotoInput').click()">
+      <div class="f-photo-hint" id="brandPhotoHint"><div style="font-size:26px">🖼️</div><div style="font-size:11px;margin-top:4px">Tap to upload brand photo</div></div>
+      <input type="file" id="brandPhotoInput" accept="image/*" onchange="previewBrandPhoto(this)"/>
+    </div>
+    <label class="f-lbl">Website Link (optional)</label>
+    <input class="f-input" id="co-link" type="url" placeholder="https://www.nike.com"/>
+    <label class="f-lbl">Country *</label>
+    <select class="f-select" id="co-country">
+      <option value="">Select country</option>
+      <option>Singapore</option><option>Japan</option><option>Korea</option><option>Malaysia</option>
+      <option>Thailand</option><option>USA</option><option>UK</option><option>Australia</option>
+      <option>France</option><option>Germany</option><option>China</option><option>Hong Kong</option><option>Turkey</option>
+    </select>
+    <label class="f-lbl">Categories</label>
+    <input class="f-input" id="co-categories" placeholder="e.g. Shoes, Clothing, Accessories"/>
+    <div class="f-grid2">
+      <div><label class="f-lbl">Max Members *</label><input class="f-input" id="co-maxmembers" type="number" placeholder="5" min="2" max="20" style="margin-bottom:0"/></div>
+      <div><label class="f-lbl">Deadline *</label><input class="f-input" id="co-deadline" type="date" min="2025-01-01" style="font-size:12px;margin-bottom:0"/></div>
+    </div>
+    <div style="height:12px"></div>
+    <label class="f-lbl">Rules & Description * <span style="font-weight:400">(numbered format)</span></label>
+    <textarea class="f-textarea" id="co-desc" placeholder="1. Max 3 items per person&#10;2. No food or liquid items&#10;3. Must pay within 48h of price confirmation&#10;4. No returns after purchase"></textarea>
+    <label class="f-lbl">Auto-close Item List After (hours, 0 = manual only)</label>
+    <input class="f-input" id="co-autohours" type="number" placeholder="24" min="0"/>
+    <div style="background:#FFF8E1;border-left:3px solid var(--yellow);border-radius:8px;padding:12px;font-size:12px;color:#795548;line-height:1.6">
+      ⚠️ As owner you are responsible for purchasing all items. Only <strong>one active item list</strong> at a time. Payments go to Escrow — released only after members confirm receipt.
+    </div>
+  </div>
+  <div class="bottom-cta"><button class="cta-btn" onclick="submitCreateOrder()">Create Group Order</button></div>
+</div>
+
+<!-- SUCCESS -->
+<div class="page" id="pgSuccess">
+  <div class="topnav"><div class="nav-spacer"></div><div class="nav-title">Done</div><div class="nav-spacer"></div></div>
+  <div class="scroll-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
+    <div style="width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:36px;color:white;margin-bottom:16px">✓</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:8px" id="successTitle">Done!</div>
+    <div style="font-size:13px;color:var(--gray-text);text-align:center;line-height:1.6" id="successSub"></div>
+  </div>
+  <div class="bottom-cta"><button class="cta-btn" onclick="showPage('pgChat')">Back to Group Chat</button></div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="ov" id="ovJoin" onclick="if(event.target===this)closeOv('ovJoin')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">Join this Group?</div>
+    <div class="sheet-sub" id="joinSub"></div>
+    <div class="s-btns"><button class="s-btn cancel" onclick="closeOv('ovJoin')">Cancel</button><button class="s-btn confirm" onclick="confirmJoin()">Join Group</button></div>
+  </div>
+</div>
+<div class="ov" id="ovKick" onclick="if(event.target===this)closeOv('ovKick')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">Kick / Remove Member</div>
+    <div class="sheet-sub">Select a member to remove. Their items will be removed from the list.</div>
+    <div id="kickMemberList" style="margin-bottom:14px"></div>
+    <div class="s-btns"><button class="s-btn cancel" onclick="closeOv('ovKick')">Cancel</button></div>
+  </div>
+</div>
+<div class="ov" id="ovCloseGroup" onclick="if(event.target===this)closeOv('ovCloseGroup')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">Close Group?</div>
+    <div class="sheet-sub">No new members can join. The chat remains active. Cannot be undone.</div>
+    <div class="s-btns"><button class="s-btn cancel" onclick="closeOv('ovCloseGroup')">Cancel</button><button class="s-btn danger" onclick="confirmCloseGroup()">Close Group</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ovDispute" onclick="if(event.target===this)closeOv('ovDispute')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">⚠️ Report Missing / Wrong Items</div>
+    <div class="sheet-sub">Describe what you didn't receive or what was wrong. The owner will be notified and escrow stays held until resolved.</div>
+    <label style="font-size:12px;font-weight:600;color:var(--gray-text);margin-bottom:5px;display:block">Which items are missing or wrong? *</label>
+    <input id="disputeMissing" type="text" placeholder="e.g. ZARA Crossbody Bag was missing"
+      style="width:100%;padding:12px;background:var(--gray-bg);border:2px solid transparent;border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;outline:none;margin-bottom:10px"/>
+    <label style="font-size:12px;font-weight:600;color:var(--gray-text);margin-bottom:5px;display:block">Details / Evidence *</label>
+    <textarea id="disputeReason" placeholder="Describe the issue. You can also send photos in chat as evidence."
+      style="width:100%;padding:12px;background:var(--gray-bg);border:2px solid transparent;border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;resize:none;height:80px;outline:none;margin-bottom:14px"></textarea>
+    <div class="s-btns">
+      <button class="s-btn cancel" onclick="closeOv('ovDispute')">Cancel</button>
+      <button class="s-btn danger" onclick="submitDispute()">Submit Dispute</button>
+    </div>
+  </div>
+</div>
+
+<div class="loader-ov" id="loaderOv"><div class="loader"></div><div class="loader-txt" id="loaderTxt">Loading...</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="JS/jastip-crowdshipping.js"></script>
+
+<!-- REPORT MODAL -->
+<div id="reportModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5)">
+  <div id="reportSheet" style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:80vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 16px"></div>
+    <div style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px">Report</div>
+    <div id="rModalTarget" style="font-size:13px;color:#9e9e9e;margin-bottom:16px"></div>
+    <div style="font-size:12px;font-weight:700;color:#9e9e9e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">What is this report about?</div>
+    <div id="rModalChoices" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="rModalOtherWrap" style="display:none;margin-top:12px">
+      <textarea id="rModalDesc" placeholder="Describe the issue..." maxlength="500" rows="4"
+        style="width:100%;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px;font-family:Poppins,sans-serif;font-size:13px;resize:none;outline:none;box-sizing:border-box"></textarea>
+    </div>
+    <div id="rModalError" style="display:none;color:#e53935;font-size:12px;margin-top:8px">Please select a reason.</div>
+    <button onclick="rModalSubmit()" style="width:100%;margin-top:16px;padding:14px;background:#e53935;color:#fff;border:none;border-radius:14px;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer">Submit Report</button>
+    <button onclick="rModalClose()" style="width:100%;margin-top:8px;padding:12px;background:none;border:none;font-family:Poppins,sans-serif;font-size:14px;color:#9e9e9e;cursor:pointer">Cancel</button>
+  </div>
+</div>
+</body>
+</html>

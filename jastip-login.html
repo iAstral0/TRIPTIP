@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-login.css"/>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="page active" id="screenLogin">
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Welcome!</div>
+  </div>
+
+  <div class="form" id="loginForm">
+    <div class="input-group">
+      <input type="email" id="emailInput" placeholder="Email" autocomplete="email" />
+      <div class="error-msg" id="emailError">Please enter a valid email.</div>
+    </div>
+    <div class="input-group">
+      <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" />
+      <button class="toggle-pw" id="togglePw" type="button">👁</button>
+      <div class="error-msg" id="passwordError">Password must be at least 6 characters.</div>
+    </div>
+    <div style="text-align:right;margin-top:2px">
+      <a href="#" id="forgotLink" style="font-size:13px;color:#7B2FBE;font-weight:600;text-decoration:none">Forgot Password?</a>
+    </div>
+  </div>
+
+  <button class="btn-login" id="loginBtn">
+    <span class="btn-text">Login</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="create-link">
+    <a href="#" id="createLink">Create a new account?</a>
+  </div>
+</div>
+
+<!-- ══ FORGOT: STEP 1 — Enter Email ══ -->
+<div class="page" id="screenFpEmail">
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Forgot Password</div>
+    <div class="fp-sub">Enter your registered email and we'll send you a reset code.</div>
+  </div>
+
+  <div class="form">
+    <div class="input-group">
+      <input type="email" id="fpEmail" placeholder="Registered email" />
+      <div class="error-msg" id="fpEmailError">Please enter a valid email.</div>
+    </div>
+  </div>
+
+  <button class="btn-login" id="fpSendBtn">
+    <span class="btn-text">Send Reset Code</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="create-link"><a href="#" id="fpBack1">← Back to Login</a></div>
+</div>
+
+<!-- ══ FORGOT: STEP 2 — Enter OTP ══ -->
+<div class="page" id="screenFpOtp">
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Enter Reset Code</div>
+    <div class="fp-sub">We sent a 6-digit code to<br/><strong id="fpEmailDisplay"></strong></div>
+  </div>
+
+  <div class="form" style="align-items:center;display:flex;flex-direction:column">
+    <div class="otp-row">
+      <input class="otp-box" id="fpotp0" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,0)" onkeyup="fpOtpKey(event,0)"/>
+      <input class="otp-box" id="fpotp1" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,1)" onkeyup="fpOtpKey(event,1)"/>
+      <input class="otp-box" id="fpotp2" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,2)" onkeyup="fpOtpKey(event,2)"/>
+      <input class="otp-box" id="fpotp3" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,3)" onkeyup="fpOtpKey(event,3)"/>
+      <input class="otp-box" id="fpotp4" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,4)" onkeyup="fpOtpKey(event,4)"/>
+      <input class="otp-box" id="fpotp5" maxlength="1" type="text" inputmode="numeric" oninput="fpOtpInput(this,5)" onkeyup="fpOtpKey(event,5)"/>
+    </div>
+    <div class="error-msg" id="fpOtpError" style="text-align:center">Incorrect code. Please try again.</div>
+    <div class="otp-timer">
+      <span id="fpTimerLabel">Resend code in </span>
+      <span id="fpTimer">60s</span>
+      <button id="fpResendBtn" onclick="fpResend()" style="display:none;background:none;border:none;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:#7B2FBE;cursor:pointer">Resend code</button>
+    </div>
+  </div>
+
+  <button class="btn-login" id="fpVerifyBtn">
+    <span class="btn-text">Verify Code</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="create-link"><a href="#" id="fpBack2">← Back to Login</a></div>
+</div>
+
+<!-- ══ FORGOT: STEP 3 — New Password ══ -->
+<div class="page" id="screenFpReset">
+  <div class="header">
+    <div class="logo">JasTip</div>
+    <div class="welcome">Set New Password</div>
+    <div class="fp-sub">Choose a strong new password for your account.</div>
+  </div>
+
+  <div class="form">
+    <div class="input-group">
+      <input type="password" id="fpNewPw" placeholder="New password (min. 6 characters)" />
+      <div class="error-msg" id="fpNewPwError">Password must be at least 6 characters.</div>
+    </div>
+    <div class="input-group">
+      <input type="password" id="fpConfirmPw" placeholder="Confirm new password" />
+      <div class="error-msg" id="fpConfirmPwError">Passwords do not match.</div>
+    </div>
+  </div>
+
+  <button class="btn-login" id="fpResetBtn">
+    <span class="btn-text">Reset Password</span>
+    <div class="spinner"></div>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="JS/jastip-login.js"></script>
+</body>
+</html>

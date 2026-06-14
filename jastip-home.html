@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-home.css"/>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="topnav">
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search destinations, orders..." oninput="homeSearch(this.value)" id="homeSearchInput" />
+  </div>
+  <div class="nav-icons">
+    <button class="nav-icon-btn" onclick="location.href='jastip-profile.html'">👤</button>
+  </div>
+</div>
+
+
+<!-- Search overlay (closes on tap outside) -->
+<div class="sr-overlay" id="srOverlay" onclick="closeSearch()"></div>
+
+<!-- Search results panel -->
+<div class="search-results" id="searchResults"></div>
+
+<!-- Scrollable content -->
+<div class="scroll-body">
+
+  <!-- Banner -->
+  <div class="banner fade-in">
+    <span class="banner-label">Gambar</span>
+    <div class="banner-dots">
+      <span class="active"></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="section fade-in" style="animation-delay:0.05s">
+    <div class="category-row">
+      <div class="category-item" onclick="location.href='jastip-international.html'">
+        <div class="category-img">✈️</div>
+        <span class="category-name">International</span>
+      </div>
+      <div class="category-item" onclick="location.href='jastip-domestic.html'">
+        <div class="category-img">🏠</div>
+        <span class="category-name">Domestic</span>
+      </div>
+      <div class="category-item" onclick="location.href='jastip-crowdshipping.html'">
+        <div class="category-img">📦</div>
+        <span class="category-name">Crowdshipping</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jastip Quickly -->
+  <div class="section fade-in" style="animation-delay:0.1s">
+    <div class="section-title">Jastip Quickly</div>
+    <div class="jastip-grid">
+      <div class="jastip-card" onclick="location.href='jastip-international.html'">
+        <div class="jastip-img">🇸🇬</div>
+        <div class="jastip-name">Singapore</div>
+        <div class="jastip-sub">Asia</div>
+      </div>
+      <div class="jastip-card" onclick="location.href='jastip-international.html'">
+        <div class="jastip-img">🇯🇵</div>
+        <div class="jastip-name">Japan</div>
+        <div class="jastip-sub">Asia</div>
+      </div>
+      <div class="jastip-card" onclick="location.href='jastip-international.html'">
+        <div class="jastip-img">🇰🇷</div>
+        <div class="jastip-name">Korea</div>
+        <div class="jastip-sub">Asia</div>
+      </div>
+      <div class="jastip-card" style="grid-column: 1;" onclick="location.href='jastip-international.html'">
+        <div class="jastip-img">🇺🇸</div>
+        <div class="jastip-name">USA</div>
+        <div class="jastip-sub">America</div>
+      </div>
+      <div class="jastip-card" onclick="location.href='jastip-international.html'">
+        <div class="jastip-img">🇬🇧</div>
+        <div class="jastip-name">UK</div>
+        <div class="jastip-sub">Europe</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ongoing Orders — loaded from API -->
+  <div class="ongoing-section fade-in" style="animation-delay:0.15s">
+    <div class="ongoing-title">Ongoing Orders</div>
+    <div class="ongoing-grid" id="ongoingOrdersHome">
+      <div style="color:#9E9E9E;font-size:13px;padding:8px 0">Loading orders...</div>
+    </div>
+  </div>
+
+</div><!-- end scroll-body -->
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="bnav-btn" onclick="location.href='jastip-orders.html'">
+    <span class="icon">🛒</span><span class="label">Orders</span>
+  </button>
+  <button class="bnav-btn active" onclick="location.href='jastip-home.html'">
+    <span class="icon">🏠</span><span class="label">Home</span>
+  </button>
+  <button class="bnav-btn" onclick="location.href='jastip-chat.html'">
+    <span class="icon">💬</span><span class="label">Chat</span>
+  </button>
+</div>
+
+<script src="JS/jastip-support.js"></script>
+<script src="JS/jastip-home.js"></script>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>

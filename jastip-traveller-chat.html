@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Traveller Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-traveller-chat.css"/>
+</head>
+<body>
+
+<!-- CHAT LIST -->
+<div class="header"><h1>Messages</h1></div>
+<div class="chat-search-wrap">
+  <div class="chat-search-bar">
+    <span style="color:var(--gray-text);font-size:14px">🔍</span>
+    <input type="text" placeholder="Search conversations..." id="chatSearchInput" oninput="searchChats(this.value)" />
+  </div>
+</div>
+<div class="chat-list fade-in" id="chatList"></div>
+<div class="bottom-nav">
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-orders.html'"><span class="icon">🛒</span><span class="label">Orders</span></button>
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-home.html'"><span class="icon">🏠</span><span class="label">Home</span></button>
+  <button class="bnav-btn active"><span class="icon">💬</span><span class="label">Chat</span></button>
+</div>
+
+<!-- MESSAGE SCREEN -->
+<div class="msg-screen" id="msgScreen">
+  <div class="msg-header">
+    <button class="msg-back" onclick="closeChat()">‹</button>
+    <div class="msg-avatar" id="msgAvatar"></div>
+    <div style="flex:1">
+      <div class="msg-name" id="msgName"></div>
+      <div class="msg-status" id="msgStatus"></div>
+    </div>
+    <div class="msg-order-tag" id="msgOrderTag"></div>
+    <button onclick="openChatInfo()" style="width:36px;height:36px;background:#EDE7F6;color:#7B2FBE;border:none;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:6px">ℹ️</button>
+  </div>
+  <div class="msg-body" id="msgBody"></div>
+  <div class="msg-input-bar">
+    <textarea class="msg-input" id="msgInput" placeholder="Type a message..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+    <button class="msg-send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- INFO PANEL -->
+<div id="chatInfoPanel" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.45)" onclick="if(event.target===this)closeChatInfo()">
+  <div class="chat-sheet-anim" style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;max-height:90vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:4px;margin:12px auto 0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 14px;border-bottom:1px solid #f0f0f0">
+      <div style="font-size:16px;font-weight:700;color:#1a1a1a">Contact Info</div>
+      <button onclick="closeChatInfo()" style="width:32px;height:32px;background:#f5f5f5;border:none;border-radius:50%;font-size:20px;cursor:pointer;color:#666;line-height:1">×</button>
+    </div>
+    <div style="padding:24px 16px 20px;text-align:center;border-bottom:1px solid #f0f0f0">
+      <div id="infoAvatar" style="width:72px;height:72px;border-radius:50%;background:#EDE7F6;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px"></div>
+      <div id="infoName"  style="font-size:18px;font-weight:700;color:#1a1a1a"></div>
+      <div id="infoRole"  style="font-size:12px;color:#9e9e9e;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px"></div>
+      <div id="infoPhone" style="font-size:13px;color:#666;margin-top:8px"></div>
+    </div>
+    <div style="padding:16px">
+      <div style="font-size:12px;font-weight:700;color:#9e9e9e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Related Order</div>
+      <div id="infoOrderCard" style="background:#f9f9f9;border-radius:14px;padding:14px"></div>
+    </div>
+    <div style="padding:0 16px 32px">
+      <button onclick="openChatReport()" style="width:100%;padding:13px;background:#FFF5F5;border:1.5px solid #e53935;border-radius:14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:#e53935;cursor:pointer">🚩 Report this person</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div id="chatReportModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.5)" onclick="if(event.target===this)closeChatReport()">
+  <div class="chat-sheet-anim" style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:82vh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 16px"></div>
+    <div style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px">Report</div>
+    <div id="chatRTarget" style="font-size:13px;color:#9e9e9e;margin-bottom:16px"></div>
+    <div style="font-size:12px;font-weight:700;color:#9e9e9e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">What is this report about?</div>
+    <div id="chatRChoices" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="chatROtherWrap" style="display:none;margin-top:12px">
+      <textarea id="chatRDesc" placeholder="Describe the issue..." maxlength="500" rows="4"
+        style="width:100%;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px;font-family:'Poppins',sans-serif;font-size:13px;resize:none;outline:none;box-sizing:border-box"></textarea>
+    </div>
+    <div id="chatRError" style="display:none;color:#e53935;font-size:12px;margin-top:8px">Please select a reason.</div>
+    <button onclick="submitChatReport()" style="width:100%;margin-top:16px;padding:14px;background:#e53935;color:#fff;border:none;border-radius:14px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer">Submit Report</button>
+    <button onclick="closeChatReport()" style="width:100%;margin-top:8px;padding:12px;background:none;border:none;font-family:'Poppins',sans-serif;font-size:14px;color:#9e9e9e;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<script src="JS/jastip-traveller-chat.js"></script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

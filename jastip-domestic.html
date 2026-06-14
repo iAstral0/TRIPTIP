@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Domestic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-domestic.css"/>
+  <!-- Midtrans Snap.js — SANDBOX (switch to production URL for live) -->
+  <!-- Replace YOUR_CLIENT_KEY with your actual Midtrans Client Key from dashboard.sandbox.midtrans.com -->
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="YOUR_CLIENT_KEY"></script>
+</head>
+<body>
+
+<!-- ══ PAGE 1: TOWNS ══ -->
+<div class="page" id="pageTowns">
+  <div class="topnav">
+    <button class="back-btn" onclick="location.href='jastip-home.html'">‹</button>
+    <div class="nav-title">Domestic</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="scroll-body">
+    <div class="banner"><span class="banner-label">Gambar</span></div>
+    <div style="padding:12px 16px 0;position:relative">
+      <div style="display:flex;align-items:center;background:var(--gray-bg);border-radius:24px;padding:10px 16px;gap:8px">
+        <span style="color:var(--gray-text);font-size:15px">🔍</span>
+        <input type="text" placeholder="Search cities, regions..." id="citySearch" oninput="filterCities()" onblur="setTimeout(()=>document.getElementById('cityDropdown').classList.remove('show'),200)"
+          style="flex:1;background:none;border:none;outline:none;font-family:'Poppins',sans-serif;font-size:13px;color:#1a1a1a"/>
+      </div>
+      <div class="sr-results" id="cityDropdown"></div>
+    </div>
+    <div class="section fade-in">
+      <div class="section-title">Featured Cities</div>
+      <div class="town-grid" id="featuredGrid"></div>
+    </div>
+    <div class="section fade-in" style="animation-delay:0.08s;padding-bottom:20px">
+      <div class="section-title">All Cities</div>
+      <div class="town-grid" id="allGrid"></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="location.href='jastip-orders.html'"><span class="icon">🛒</span><span class="label">Orders</span></button>
+    <button class="bnav-btn active" onclick="location.href='jastip-home.html'"><span class="icon">🏠</span><span class="label">Home</span></button>
+    <button class="bnav-btn" onclick="location.href='jastip-chat.html'"><span class="icon">💬</span><span class="label">Chat</span></button>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: SOUVENIRS ══ -->
+<div class="page" id="pageSouvenirs">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pageTowns')">‹</button>
+    <div class="nav-title" id="souvenirPageTitle">City</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="scroll-body" style="padding-bottom:140px">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <span style="color:var(--gray-text)">🔍</span>
+        <input type="text" placeholder="Type here..." id="souvenirSearch" oninput="filterSouvenirs()" />
+      </div>
+    </div>
+    <div class="souvenir-list" id="souvenirList"></div>
+  </div>
+  <!-- Cart bar (shows when items selected) -->
+  <div class="cart-bar" id="cartBar">
+    <div class="cart-info">
+      <div class="cart-count" id="cartCount">0 items selected</div>
+      <div class="cart-total" id="cartTotal">Rp 0</div>
+    </div>
+    <button class="cart-btn" onclick="showPage('pageImportChoice')">Confirm →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: IMPORT CHOICE ══ -->
+<div class="page" id="pageImportChoice">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pageSouvenirs')">‹</button>
+    <div class="nav-title">Add More Items?</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="choice-wrap">
+    <div style="font-size:13px;color:var(--gray-text);text-align:center;margin-bottom:4px">Your souvenir order is ready!<br>Pick a traveller to deliver your items.</div>
+    <div class="choice-card" id="choiceNo" onclick="selectImport('no')">
+      <div class="choice-icon">🎁</div>
+      <div class="choice-label">Souvenirs Only</div>
+      <div class="choice-desc">Just pick a traveller to carry and deliver my souvenirs — no extra items needed</div>
+    </div>
+    <div class="choice-card" id="choiceYes" onclick="selectImport('yes')">
+      <div class="choice-icon">✈️</div>
+      <div class="choice-label">Souvenirs + Import Items</div>
+      <div class="choice-desc">Pick a traveller and also add extra imported items from abroad to my order</div>
+    </div>
+    <button class="choice-btn" id="importChoiceBtn" onclick="confirmImportChoice()">
+      <span class="btn-text">Continue</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══ PAGE 4: TRAVELLER LIST (international items) ══ -->
+<div class="page" id="pageTravellers">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pageImportChoice')">‹</button>
+    <div class="nav-title" id="travellerPageTitle">Choose Traveller</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div style="text-align:center;font-size:12px;color:var(--gray-text);padding:8px 16px 0;background:var(--white)" id="travellerSubtitle">Pick a traveller</div>
+  <div class="scroll-body">
+    <div class="search-wrap">
+      <div class="search-bar">
+        <span style="color:var(--gray-text)">🔍</span>
+        <input type="text" placeholder="Type here..." id="travellerSearch" oninput="filterTravellers()" />
+      </div>
+    </div>
+    <div class="traveller-list" id="travellerList"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE 5: ORDER FORM ══ -->
+<div class="page" id="pageOrder">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pageTravellers')">‹</button>
+    <div class="nav-title" id="orderPageTitle">Add Items</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="scroll-body" style="padding-bottom:120px">
+    <div class="order-header">
+      <div class="order-name" id="ord-name"></div>
+      <div class="order-arrived">Arrived at <span id="ord-date"></span></div>
+      <div style="font-size:12px;color:var(--gray-text);margin-top:4px">Issued Ticket</div>
+    </div>
+    <div class="box-wrap">
+      <div id="ord-box-svg"></div>
+      <div class="box-capacity" id="ord-capacity"></div>
+      <div class="box-price" id="ord-price"></div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-title">Jastiper's Rules</div>
+      <ol class="rules-list" id="ord-rules"></ol>
+    </div>
+    <div class="order-form">
+      <div class="order-form-title">You want to titip...</div>
+      <div id="itemsContainer"></div>
+      <div class="warning-text">*Pay attention to the rules above! The Jastiper can cancel your order.</div>
+      <div class="clearfix">
+        <button class="add-more-btn" onclick="addItem()">Add More</button>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-cta">
+    <button class="cta-btn" onclick="goToPayment()">
+      <span class="btn-text">That's All</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══ PAGE 6: PAYMENT ══ -->
+<div class="page" id="pagePayment">
+  <div class="topnav">
+    <button class="back-btn" onclick="showPage('pageOrder')">‹</button>
+    <div class="nav-title">Payment</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="payment-wrap">
+    <div class="summary-card">
+      <div class="summary-header">
+        <div class="summary-header-title">Summary</div>
+        <div class="summary-header-id" id="pay-id"></div>
+      </div>
+      <!-- Souvenir items -->
+      <div id="pay-souvenir-section"></div>
+      <!-- Import items -->
+      <div id="pay-import-section"></div>
+      <div class="summary-divider"></div>
+      <div class="summary-subtotal-row"><span>Subtotal</span><span id="pay-subtotal"></span></div>
+      <div class="summary-subtotal-row"><span>Tax</span><span id="pay-tax"></span></div>
+      <div class="summary-subtotal-row bold"><span>Total</span><span id="pay-total"></span></div>
+      <div class="summary-blocks">
+        <div class="summary-block"><div class="summary-block-label">Arrived At</div><div class="summary-block-value" id="pay-date" style="font-size:14px"></div></div>
+        <div class="summary-block"><div class="summary-block-label">Total Amount</div><div class="summary-block-value" id="pay-amount"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-cta">
+    <button class="cta-btn" onclick="confirmPayment()">
+      <span class="btn-text">Confirm</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══ PAGE 7: SUCCESS ══ -->
+<div class="page" id="pageSuccess">
+  <div class="topnav">
+    <div class="nav-spacer"></div>
+    <div class="nav-title">Order Details</div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="success-wrap">
+    <div class="success-card">
+      <div class="success-check">✓</div>
+      <div class="success-title">Payment Successful!</div>
+      <div class="success-id" id="suc-id"></div>
+      <div class="success-traveller" id="suc-traveller-row" style="display:none">
+        <div class="success-avatar"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="18"/><ellipse cx="40" cy="68" rx="28" ry="18"/></svg></div>
+        <div><div style="font-size:16px;font-weight:700" id="suc-city"></div><div style="font-size:12px;color:var(--gray-text)" id="suc-provider"></div></div>
+      </div>
+      <div class="success-meta-row"><span>Total Items</span><span id="suc-total-items"></span></div>
+      <div class="success-meta-row"><span>Subtotal</span><span id="suc-subtotal"></span></div>
+      <div class="success-meta-row"><span>Tax</span><span id="suc-tax"></span></div>
+      <div class="success-meta-row" style="font-weight:700"><span>Total</span><span id="suc-total"></span></div>
+      <div class="success-date" id="suc-date"></div>
+    </div>
+  </div>
+  <div class="bottom-cta">
+    <button class="cta-btn" onclick="location.href='jastip-orders.html'">Track Order</button>
+  </div>
+</div>
+
+<!-- Notes Sheet -->
+<div class="overlay" id="notesOverlay" onclick="closeNotesSheet(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">Add Notes</div>
+    <textarea id="notesInput" placeholder="Size, colour, specifications..."></textarea>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeNotesSheet()">Cancel</button>
+      <button class="sheet-btn save" onclick="saveNote()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader"></div>
+  <div class="loading-text">Processing Payment...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="JS/jastip-domestic.js"></script>
+
+</body>
+</html>

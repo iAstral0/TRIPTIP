@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JasTip – Traveller Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/jastip-traveller-orders.css"/>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header"><h1>My Orders</h1></div>
+
+<!-- Orders list -->
+<div class="scroll-body">
+  <div class="orders-list fade-in" id="ordersList"></div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="bnav-btn active" onclick="location.href='jastip-traveller-orders.html'">
+    <span class="icon">🛒</span><span class="label">Orders</span>
+  </button>
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-home.html'">
+    <span class="icon">🏠</span><span class="label">Home</span>
+  </button>
+  <button class="bnav-btn" onclick="location.href='jastip-traveller-chat.html'">
+    <span class="icon">💬</span><span class="label">Chat</span>
+  </button>
+</div>
+
+<!-- Order Details Overlay -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeDetail()">‹</button>
+    <div>
+      <div class="detail-title">Order Details</div>
+      <div class="detail-id" id="det-id"></div>
+      <div class="detail-date" id="det-date"></div>
+    </div>
+  </div>
+  <div class="detail-scroll" id="detailScroll">
+    <div class="stat-blocks">
+      <div class="stat-block"><div class="stat-label">Total Weight</div><div class="stat-value" id="det-weight">0<span>kg</span></div></div>
+      <div class="stat-block"><div class="stat-label">Total Price</div><div class="stat-value" id="det-price">Rp 0</div></div>
+    </div>
+    <div class="detail-stepper-wrap" id="det-stepper-wrap"></div>
+    <div id="det-customers"></div>
+  </div>
+  <div class="detail-bottom">
+    <button class="db-btn contact" onclick="goToChat()">Contact</button>
+    <button class="db-btn next" id="nextStepBtn" onclick="confirmNextStep()">Next Step</button>
+  </div>
+</div>
+
+
+<!-- Step 1: Remove options sheet (whole customer or specific items) -->
+<div class="overlay" id="removeOptionsOverlay" onclick="if(event.target===this)closeSheet('removeOptionsOverlay')">
+  <div class="sheet" onclick="event.stopPropagation()" style="padding:24px 20px 44px;max-height:85vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">Remove from Order</div>
+    <div style="font-size:12px;color:var(--gray-text);margin-bottom:16px">Customer: <strong id="removeOptName"></strong></div>
+    <div class="remove-options">
+      <button class="remove-opt-btn active" id="optAll" onclick="setRemoveMode('all')">Remove Entire Customer</button>
+      <button class="remove-opt-btn" id="optItems" onclick="setRemoveMode('items')">Remove Specific Items</button>
+    </div>
+    <!-- Item checkboxes (shown in items mode) -->
+    <div id="itemCheckList" style="display:none;margin-bottom:14px"></div>
+    <!-- Photo proof -->
+    <div style="font-size:12px;font-weight:600;color:var(--gray-text);margin-bottom:6px">Proof Photo *</div>
+    <div style="width:100%;height:130px;background:var(--gray-bg);border-radius:10px;margin-bottom:10px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="document.getElementById('removeProofInput').click()">
+      <div id="removeProofPreview" style="display:none;width:100%;height:100%"></div>
+      <div id="removeProofHint" style="text-align:center;color:var(--gray-text)"><div style="font-size:28px">📷</div><div style="font-size:11px;margin-top:4px">Photo required as proof</div></div>
+      <input type="file" id="removeProofInput" accept="image/*" style="display:none" onchange="handleRemoveProof(this)" />
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--gray-text);margin-bottom:6px">Reason *</div>
+    <textarea id="removeReasonInput" placeholder="e.g. Item out of stock, wrong size..." style="width:100%;padding:10px;background:var(--gray-bg);border:1.5px solid transparent;border-radius:10px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--dark);resize:none;height:60px;outline:none;margin-bottom:14px"></textarea>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeSheet('removeOptionsOverlay')" style="flex:1;padding:13px;background:var(--gray-bg);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--dark)">Cancel</button>
+      <button onclick="confirmRemoveWithProof()" style="flex:1;padding:13px;background:var(--red);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:#fff">Confirm Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 3: Per-customer handover proof sheet -->
+<div class="overlay" id="handoverProofOverlay" onclick="if(event.target===this)closeSheet('handoverProofOverlay')">
+  <div class="sheet" onclick="event.stopPropagation()" style="padding:24px 20px 44px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">Handover Proof</div>
+    <div style="font-size:12px;color:var(--gray-text);margin-bottom:16px">Upload a photo for each customer to confirm handover.</div>
+    <div id="handoverProofList"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button onclick="closeSheet('handoverProofOverlay')" style="flex:1;padding:13px;background:var(--gray-bg);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--dark)">Cancel</button>
+      <button onclick="submitHandoverProof()" style="flex:1;padding:13px;background:var(--purple);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:#fff">Submit All & Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remove Customer Sheet -->
+<div class="overlay" id="removeOverlay">
+  <div class="sheet">
+    <div class="sheet-title">Remove Customer?</div>
+    <div class="sheet-sub">Are you sure you want to remove <strong id="removeCustomerName"></strong> from this order? Their payment will be refunded via escrow. This cannot be undone.</div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeSheet('removeOverlay')">Cancel</button>
+      <button class="sheet-btn confirm" onclick="doRemove()">Yes, Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Next Step Sheet -->
+<div class="overlay" id="nextStepOverlay">
+  <div class="sheet">
+    <div class="sheet-title" id="nextSheetTitle">Proceed to Next Step?</div>
+    <div class="sheet-sub" id="nextSheetSub">Once you proceed, you cannot go back.</div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeSheet('nextStepOverlay')">Cancel</button>
+      <button class="sheet-btn proceed" onclick="doNextStep()">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Proof Upload Sheet -->
+<div class="overlay" id="proofOverlay" onclick="if(event.target===this)closeSheet('proofOverlay')">
+  <div class="sheet" onclick="event.stopPropagation()" style="padding:24px 20px 44px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">Upload Step Proof</div>
+    <div style="font-size:12px;color:var(--gray-text);margin-bottom:16px" id="proofStepLabel">Step update</div>
+    <div style="width:100%;height:160px;background:var(--gray-bg);border-radius:12px;margin-bottom:12px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="document.getElementById('proofFileInput').click()">
+      <div id="proofPreview" style="display:none;width:100%;height:100%"></div>
+      <div id="proofUploadHint" style="text-align:center;color:var(--gray-text)">
+        <div style="font-size:32px">📷</div>
+        <div style="font-size:12px;margin-top:4px">Tap to upload proof photo</div>
+        <div style="font-size:11px;color:#bbb;margin-top:2px">Required — customers must see this</div>
+      </div>
+      <input type="file" id="proofFileInput" accept="image/*" style="display:none" onchange="handleProofFile(this);document.getElementById('proofUploadHint').style.display='none'" />
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--gray-text);margin-bottom:6px">Message to Customers *</div>
+    <textarea id="proofMsgInput" placeholder="e.g. All items collected! Heading to airport now ✈️" style="width:100%;padding:12px;background:var(--gray-bg);border:1.5px solid transparent;border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--dark);resize:none;height:80px;outline:none;margin-bottom:16px"></textarea>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeSheet('proofOverlay')" style="flex:1;padding:14px;background:var(--gray-bg);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--dark)">Cancel</button>
+      <button onclick="submitProofAndAdvance()" style="flex:1;padding:14px;background:var(--purple);border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:#fff">Submit & Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="JS/jastip-traveller-orders.js"></script>
+
+
+<!-- ══ REPORT OVERLAY ══ -->
+<div class="report-overlay" id="reportOverlay">
+  <div class="report-sheet">
+    <div class="report-handle"></div>
+    <div class="report-title">Report</div>
+    <div class="report-sub" id="reportTarget"></div>
+
+    <!-- Reason choices -->
+    <div class="report-section">What is this report about?</div>
+    <div class="report-choices" id="reportChoices"></div>
+
+    <!-- Other description -->
+    <div id="reportOtherWrap" style="display:none;margin-top:12px">
+      <textarea class="report-textarea" id="reportDescription" placeholder="Please describe the issue in detail..." maxlength="500" rows="4"></textarea>
+      <div style="font-size:11px;color:var(--gray-text);text-align:right;margin-top:4px"><span id="reportCharCount">0</span>/500</div>
+    </div>
+    <!-- Description optional for non-other -->
+    <div id="reportDescWrap" style="display:none;margin-top:12px">
+      <div class="report-section" style="margin-bottom:6px">Additional details (optional)</div>
+      <textarea class="report-textarea" id="reportDescOptional" placeholder="Add more details..." maxlength="500" rows="3"></textarea>
+    </div>
+
+    <div class="report-error" id="reportError">Please select a reason.</div>
+
+    <button class="report-submit-btn" id="reportSubmitBtn" onclick="submitReport()">
+      <span class="btn-text">Submit Report</span>
+      <div class="spinner"></div>
+    </button>
+    <button class="report-cancel-btn" onclick="closeReport()">Cancel</button>
+  </div>
+</div>
+</body>
+</html>
